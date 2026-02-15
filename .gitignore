@@ -76,3 +76,7 @@ snippets/external/
 # Notion exports (contains API keys)
 # ------------------------------------
 notion/
+
+# Cursor MCP config can contain API keys
+.cursor/mcp.json
+.cursor/mcp.local.json
