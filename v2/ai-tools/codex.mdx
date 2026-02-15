@@ -1,0 +1,172 @@
+---
+title: 'Codex setup'
+---
+
+Use Codex to plan, edit, and validate Livepeer Mintlify docs with smaller diffs and faster review cycles.
+
+## Prerequisites
+
+- Access to this repository
+- A branch for your changes
+- Mintlify CLI available for local preview (`mint dev`)
+- Node.js available for repo scripts
+
+## Session starter context for Codex
+
+Paste this at the start of new Codex sessions to improve output quality:
+
+````markdown
+# Livepeer docs context
+
+- Platform: Mintlify docs (MDX + frontmatter)
+- Primary docs version: `v2/`
+- Legacy docs: `v1/`
+- Navigation source of truth: `docs.json`
+- Shared components: `snippets/components/`
+- Shared scripts: `snippets/scripts/` and `v2/scripts/`
+
+# Standards
+
+- Keep changes minimal and reversible
+- Preserve existing terminology and page structure
+- Use second person ("you") for instructions
+- Ensure `title` and `description` frontmatter on docs pages
+- Use relative internal links
+- Prefer updating existing pages before creating new duplicates
+
+# Validation
+
+- Run `mint dev` after edits
+- Run script checks when relevant (docs status, SEO, API generation)
+- Report exactly which files changed and why
+````
+
+## High-value Codex tasks for this repo
+
+### 1) Author or update pages in `v2/pages`
+
+Use Codex for focused page edits, migrations from `v1`, and consistency fixes.
+
+Example prompt:
+
+```text
+Update v2/pages/03_developers/... with a concise quickstart.
+Keep existing structure and components. Add missing frontmatter fields if needed.
+Do not rewrite unrelated sections.
+```
+
+### 2) Navigation maintenance in `docs.json`
+
+Use Codex to find broken page references and patch only invalid entries.
+
+Example prompt:
+
+```text
+Audit docs.json for page paths that do not exist. Patch only broken references and keep tab/group structure unchanged.
+```
+
+### 3) API docs generation from OpenAPI
+
+Use repo scripts instead of hand-authoring endpoint pages.
+
+```bash
+./snippets/scripts/generate-api-docs.sh <openapi-spec> <output-dir> <api-name> [github-repo-url]
+```
+
+Then ask Codex to integrate generated pages into the correct `docs.json` group.
+
+### 4) SEO and metadata improvements
+
+Use Codex to run dry-run checks and apply only missing metadata.
+
+From `v2/`:
+
+```bash
+npm run generate-seo:dry-run
+npm run generate-seo
+```
+
+### 5) Docs structure/status reporting
+
+After navigation edits:
+
+```bash
+node snippets/scripts/generate-docs-status.js
+```
+
+This updates:
+
+- `snippets/generated/docs-status-table.mdx`
+- `snippets/generated/docs-structure-diagram.mdx`
+
+## Validation checklist (copy/paste)
+
+Run only what is relevant to your change set:
+
+```bash
+# 1) Preview docs and catch MDX/nav issues
+mint dev
+
+# 2) Rebuild docs status artifacts after docs.json changes
+node snippets/scripts/generate-docs-status.js
+
+# 3) SEO checks for v2 pages
+cd v2 && npm run generate-seo:dry-run
+```
+
+## Prompt patterns that optimize Codex output
+
+- Scope tightly: one feature, one section, one folder.
+- Ask for "minimal diff" explicitly.
+- Require unchanged structure: "Do not reorder unrelated sections."
+- Require validation commands in output.
+- Require a file-by-file summary.
+
+Good template:
+
+```text
+Task: <one objective>
+Scope: <exact files or folders>
+Constraints:
+- Minimal diff
+- Preserve existing structure and tone
+- No unrelated refactors
+Validation:
+- Run <commands>
+Output:
+- List changed files with 1-2 sentence rationale each
+```
+
+## Common failure modes and how to prevent them
+
+- **Missing frontmatter description:** Add `description` for discoverability and LLM indexing quality.
+- **Broken `docs.json` references:** Verify page path exists before editing navigation.
+- **MDX parse errors:** Watch for unclosed tags, invalid JSX, and malformed fenced code blocks.
+- **Unnecessary rewrites:** Ask for targeted patches, not full-page rewrites.
+- **Duplicate content across pages:** Search existing docs first and link where possible.
+
+## Quick prompts for common workflows
+
+### New page scaffold
+
+```text
+Create a new v2 page at <path>. Include frontmatter (title, description), a short overview, prerequisites, step-by-step instructions, and troubleshooting. Reuse existing component patterns from nearby pages.
+```
+
+### Migration from v1 to v2
+
+```text
+Migrate this v1 page into the matching v2 section. Keep technical accuracy, modernize wording, preserve key examples, and align headings/components with neighboring v2 pages.
+```
+
+### Link and navigation repair
+
+```text
+Identify broken internal links and missing docs.json page targets in <scope>. Patch only broken links/targets and keep the information architecture unchanged.
+```
+
+### API docs refresh
+
+```text
+Regenerate API docs from <openapi path> into <output dir>, then update docs.json navigation snippet for that API group. Do not modify unrelated navigation nodes.
+```
