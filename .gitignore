@@ -2,7 +2,6 @@ node_modules
 .DS_Store
 
 # IDE
-.vscode
 *.code-workspace
 
 # V2
@@ -81,4 +80,3 @@ notion/
 # AI task planning & execution folder 
 # ------------------------------------
 tasks/plan/*
-!tasks/plan/home-home-reference-matrix.txt
